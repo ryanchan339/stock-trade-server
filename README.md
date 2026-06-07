@@ -62,11 +62,7 @@ every push.
 
 **Live dashboard:**
 
-> _Add a screenshot here once deployed:_ run `streamlit run dashboard.py`, grab a
-> screenshot of the running app, save it to `docs/dashboard.png`, and it will
-> render below.
-
-<!-- ![Live dashboard](docs/dashboard.png) -->
+![Live dashboard](docs/dashboard.png)
 
 The dashboard has three tabs:
 - **Today** — paper equity, current target portfolio, model scores, and the
