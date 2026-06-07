@@ -1,0 +1,79 @@
+# ---------------------------------------------------------------------------
+# Stock Trade Server configuration
+# ---------------------------------------------------------------------------
+
+# Universe of tickers the model trades. Keep these liquid, large-cap names so
+# Alpaca fills are realistic and yfinance history is clean.
+universe:
+  - AAPL
+  - MSFT
+  - GOOGL
+  - AMZN
+  - META
+  - NVDA
+  - TSLA
+  - JPM
+  - V
+  - UNH
+  - HD
+  - PG
+  - JNJ
+  - XOM
+  - WMT
+
+data:
+  start: "2015-01-01"   # how far back to pull training history
+  # 'end' defaults to today when omitted
+  cache_dir: "data_cache"
+
+# ---------------------------------------------------------------------------
+# Modeling
+# ---------------------------------------------------------------------------
+model:
+  horizon: 5            # predict the sign of the forward N-trading-day return
+  # A trade is "successful" if forward return clears this hurdle (covers noise
+  # and transaction cost). 0.0 = simple direction.
+  label_threshold: 0.0
+  artifact: "artifacts/model.joblib"
+  params:
+    learning_rate: 0.05
+    max_iter: 400
+    max_depth: 4
+    l2_regularization: 1.0
+    min_samples_leaf: 50
+    early_stopping: true
+    validation_fraction: 0.15
+    random_state: 42
+
+# ---------------------------------------------------------------------------
+# Strategy / portfolio construction
+# ---------------------------------------------------------------------------
+strategy:
+  # Only take a position when the model's probability of an up-move exceeds this.
+  prob_threshold: 0.55
+  # Maximum simultaneous long positions.
+  max_positions: 5
+  # Cap on fraction of equity per name (hard diversification limit).
+  max_weight_per_name: 0.25
+  # Fraction of total equity to keep invested (rest stays cash as a buffer).
+  target_invested: 0.95
+  # Per-position stop loss: exit if it falls this far below entry.
+  stop_loss: 0.07
+  # Rebalance only if a target weight differs from current by more than this,
+  # to avoid churning on tiny changes.
+  rebalance_band: 0.03
+
+# ---------------------------------------------------------------------------
+# Backtest
+# ---------------------------------------------------------------------------
+backtest:
+  train_years: 4            # rolling training window length
+  retrain_every: 21         # retrain the model every N trading days
+  initial_cash: 100000
+  cost_bps: 5               # round-trip transaction cost assumption (basis pts)
+
+# ---------------------------------------------------------------------------
+# Broker (Alpaca paper trading). Keys come from the environment / .env file.
+# ---------------------------------------------------------------------------
+broker:
+  paper: true
