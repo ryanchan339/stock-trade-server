@@ -31,8 +31,12 @@ data:
 # ---------------------------------------------------------------------------
 model:
   horizon: 5            # predict the sign of the forward N-trading-day return
-  # A trade is "successful" if forward return clears this hurdle (covers noise
-  # and transaction cost). 0.0 = simple direction.
+  # When true, the label is "beats the benchmark over the next `horizon` days"
+  # instead of "rises". This removes market beta and rewards stock selection.
+  relative_label: true
+  benchmark: "SPY"
+  # A trade is "successful" if the (relative) forward return clears this hurdle.
+  # 0.0 = simply beat the benchmark / go up.
   label_threshold: 0.0
   artifact: "artifacts/model.joblib"
   params:

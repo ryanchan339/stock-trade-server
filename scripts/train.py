@@ -8,7 +8,7 @@ import argparse
 import logging
 
 from src.config import load_config
-from src.data import download_universe
+from src.data import download_history, download_universe
 from src.features import build_dataset
 from src.model import train_model
 
@@ -28,12 +28,26 @@ def main() -> None:
         refresh=args.refresh,
     )
 
+    benchmark = None
+    if cfg["model"].get("relative_label"):
+        benchmark = download_history(
+            cfg["model"]["benchmark"],
+            cfg["data"]["start"],
+            cache_dir=cfg["data"]["cache_dir"],
+            refresh=args.refresh,
+        )
+
     panel = build_dataset(
         histories,
         horizon=cfg["model"]["horizon"],
         threshold=cfg["model"]["label_threshold"],
+        benchmark=benchmark,
     )
-    logging.info("Training panel: %d rows across %d tickers", len(panel), len(histories))
+    label_kind = "market-relative" if benchmark is not None else "absolute"
+    logging.info(
+        "Training panel: %d rows across %d tickers (%s labels)",
+        len(panel), len(histories), label_kind,
+    )
 
     model = train_model(
         panel,

@@ -139,25 +139,29 @@ Everything tunable lives in `config.yaml`:
 A walk-forward backtest over ~7 years of the default 15-stock universe (run it
 yourself with `python -m scripts.backtest`):
 
-| Metric            | Strategy | SPY buy & hold |
-|-------------------|----------|----------------|
-| CAGR              | ~9%      | ~16%           |
-| Sharpe            | ~0.48    | ~0.84          |
-| Max drawdown      | ~-41%    | ~-34%          |
+| Metric            | Absolute labels | **Market-relative labels** | SPY buy & hold |
+|-------------------|-----------------|----------------------------|----------------|
+| CAGR              | ~9%             | **~18.5%**                 | ~16%           |
+| Sharpe            | ~0.48           | **~0.83**                  | ~0.84          |
+| Max drawdown      | ~-41%           | **~-37%**                  | ~-34%          |
 
-**The model has real predictive signal** (out-of-sample it ranks up-moves better
-than the base rate), but as configured the long-only strategy **underperforms
-simply holding the index.** That is the normal, expected outcome — beating
-buy-and-hold during a historic mega-cap bull market with a long-only book is
-genuinely hard, and most naïve strategies lose to it. The value here is the
-end-to-end framework you can now iterate on.
+The big lever was the **training label**. Predicting "does the stock *rise*"
+(absolute) underperforms the index, because it rewards the model for riding
+market beta you already get free from SPY. Switching the label to "does the stock
+*beat the benchmark* over the next `horizon` days" (`model.relative_label: true`,
+the default) roughly **doubled both CAGR and Sharpe** and pushed total return past
+buy-and-hold.
 
-### Ideas to improve it
-- **Market-relative labels:** predict whether a stock beats SPY, not whether it
-  rises, to strip out the market beta the index already gives you for free.
-- **Long/short:** short the lowest-probability names to hedge market risk.
+Honest caveat: it now **beats SPY on raw return but only ties it on Sharpe** — the
+book is still long-only, so it carries full market beta and a similar drawdown.
+The next lever (long/short) is what would lift risk-adjusted return above the
+index by hedging that beta.
+
+### Ideas to improve it further
+- **Long/short:** short the lowest-probability names to hedge market beta and
+  raise Sharpe above the index.
 - **Volatility targeting / regime filter:** cut exposure in high-volatility or
-  downtrending regimes to tame the drawdown.
+  downtrending regimes to tame the -37% drawdown.
 - **Bigger / sector-diversified universe** and proper hyperparameter search with
   purged, embargoed cross-validation.
 - **Probability calibration** (`CalibratedClassifierCV`) so weights reflect true

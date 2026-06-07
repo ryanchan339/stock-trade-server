@@ -77,7 +77,8 @@ def run_backtest(
     bt = cfg["backtest"]
     sparams = StrategyParams.from_config(cfg)
 
-    panel = build_dataset(histories, horizon, threshold)
+    label_benchmark = benchmark if cfg["model"].get("relative_label") else None
+    panel = build_dataset(histories, horizon, threshold, benchmark=label_benchmark)
     if panel.empty:
         raise ValueError("Empty feature panel -- not enough history.")
 

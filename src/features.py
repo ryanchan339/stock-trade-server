@@ -86,16 +86,32 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     return out[FEATURE_COLUMNS]
 
 
-def build_label(df: pd.DataFrame, horizon: int, threshold: float = 0.0) -> pd.Series:
-    """Binary label: 1 if the forward `horizon`-day return exceeds `threshold`.
+def build_label(
+    df: pd.DataFrame,
+    horizon: int,
+    threshold: float = 0.0,
+    benchmark_fwd_ret: pd.Series | None = None,
+) -> pd.Series:
+    """Binary training label over the next `horizon` days.
 
-    Uses future prices, so rows near the end of history will be NaN (no future
-    yet) and must be dropped before training.
+    * Absolute mode (default): 1 if the stock's forward return exceeds
+      `threshold`.
+    * Market-relative mode (`benchmark_fwd_ret` supplied): 1 if the stock's
+      forward return beats the benchmark's forward return by more than
+      `threshold`. This strips out the market beta the index gives for free, so
+      the model is rewarded only for *stock selection*, not for riding the tide.
+
+    Uses future prices, so rows near the end of history are NaN (no future yet)
+    and must be dropped before training.
     """
     close = df["close"]
     fwd_ret = close.shift(-horizon) / close - 1
-    label = (fwd_ret > threshold).astype("float")
-    label[fwd_ret.isna()] = np.nan
+    if benchmark_fwd_ret is not None:
+        target = fwd_ret - benchmark_fwd_ret.reindex(df.index)
+    else:
+        target = fwd_ret
+    label = (target > threshold).astype("float")
+    label[target.isna()] = np.nan
     return label.rename("label")
 
 
@@ -106,17 +122,22 @@ def build_forward_return(df: pd.DataFrame, horizon: int) -> pd.Series:
 
 
 def build_dataset(
-    histories: dict[str, pd.DataFrame], horizon: int, threshold: float = 0.0
+    histories: dict[str, pd.DataFrame],
+    horizon: int,
+    threshold: float = 0.0,
+    benchmark: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """Stack every ticker into one long, panel-style training table.
 
     Returns a DataFrame indexed by (date, ticker) with FEATURE_COLUMNS + label +
-    fwd_ret. Rows with missing features or label are dropped.
+    fwd_ret. Rows with missing features or label are dropped. When `benchmark` is
+    supplied, labels are market-relative (see build_label).
     """
+    bench_fwd = build_forward_return(benchmark, horizon) if benchmark is not None else None
     frames = []
     for ticker, df in histories.items():
         feats = build_features(df)
-        feats["label"] = build_label(df, horizon, threshold)
+        feats["label"] = build_label(df, horizon, threshold, bench_fwd)
         feats["fwd_ret"] = build_forward_return(df, horizon)
         feats["ticker"] = ticker
         feats["date"] = df.index
