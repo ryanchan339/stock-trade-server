@@ -1,0 +1,49 @@
+name: daily-paper-trade
+
+on:
+  schedule:
+    # 14:45 UTC, Mon-Fri. This is after the 09:30 ET open year-round
+    # (10:45 ET during EDT, 09:45 ET during EST), so the market is open in both.
+    - cron: "45 14 * * 1-5"
+  workflow_dispatch: {}   # allow manual runs from the Actions tab
+
+# Never let two daily runs overlap (they both push to results/).
+concurrency:
+  group: daily-trade
+  cancel-in-progress: false
+
+jobs:
+  trade:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write          # needed to commit results/ back to the repo
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Train model on latest data
+        run: python -m scripts.train
+
+      - name: Run daily paper-trade rebalance
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        run: python -m scripts.run_daily
+
+      - name: Refresh backtest for the dashboard
+        run: python -m scripts.backtest
+
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add results/
+          git diff --staged --quiet || git commit -m "chore: daily results $(date -u +%F)"
+          git push

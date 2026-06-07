@@ -20,6 +20,7 @@ from .config import AlpacaCredentials, load_config
 from .data import download_universe
 from .features import FEATURE_COLUMNS, build_features
 from .model import TradeModel
+from .results import save_daily
 from .strategy import StrategyParams, target_weights
 
 log = logging.getLogger(__name__)
@@ -70,7 +71,7 @@ def run_daily(
 
     if dry_run:
         log.info("Dry run -- no orders submitted.")
-        return summary
+        return save_daily(summary)
 
     if creds is None:
         from .config import load_credentials
@@ -78,10 +79,11 @@ def run_daily(
         creds = load_credentials(paper=cfg["broker"]["paper"])
 
     broker = AlpacaBroker(creds)
+    summary["equity_after"] = broker.equity()
     if not broker.is_market_open():
         log.warning("Market is closed; skipping execution. Orders would queue otherwise.")
         summary["market_open"] = False
-        return summary
+        return save_daily(summary)
     summary["market_open"] = True
 
     stopped = broker.apply_stop_losses(sparams.stop_loss)
@@ -95,4 +97,4 @@ def run_daily(
 
     broker.rebalance_to(targets, sparams.rebalance_band)
     summary["equity_after"] = broker.equity()
-    return summary
+    return save_daily(summary)

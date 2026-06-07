@@ -10,6 +10,7 @@ import logging
 from src.backtest import run_backtest
 from src.config import load_config
 from src.data import download_history, download_universe
+from src.results import save_backtest
 
 
 def main() -> None:
@@ -33,6 +34,8 @@ def main() -> None:
 
     result = run_backtest(histories, cfg, benchmark=benchmark)
     print(result.summary())
+    save_backtest(result)
+    print("Saved results/backtest.json")
 
     if args.plot:
         try:
