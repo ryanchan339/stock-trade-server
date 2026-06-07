@@ -1,5 +1,9 @@
 # Stock Trade Server
 
+[![daily-paper-trade](https://github.com/ryanchan339/stock-trade-server/actions/workflows/daily.yml/badge.svg)](https://github.com/ryanchan339/stock-trade-server/actions/workflows/daily.yml)
+[![Live dashboard](https://img.shields.io/badge/Live%20dashboard-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://stock-trade-server.streamlit.app)
+[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org)
+
 A daily-rebalance, machine-learning swing-trading bot for **Alpaca paper trading**.
 It trains a gradient-boosted classifier on free Yahoo Finance history, scores a
 universe of liquid large-caps once a day, and holds a small long-only portfolio
@@ -42,6 +46,39 @@ Yahoo Finance (daily OHLCV)
 - **Walk-forward backtest.** The model is retrained on a rolling window and only
   ever trains on labels whose forward window has already resolved, so reported
   performance has no lookahead bias.
+
+---
+
+## Dashboard
+
+A free [Streamlit](https://stock-trade-server.streamlit.app) dashboard showcases
+the live paper account and the backtest. It reads only the result files committed
+by the daily GitHub Action, so it needs no secrets and redeploys automatically on
+every push.
+
+**Backtest equity curve (walk-forward, vs SPY buy & hold):**
+
+![Strategy vs SPY equity curve](docs/equity_curve.png)
+
+**Live dashboard:**
+
+> _Add a screenshot here once deployed:_ run `streamlit run dashboard.py`, grab a
+> screenshot of the running app, save it to `docs/dashboard.png`, and it will
+> render below.
+
+<!-- ![Live dashboard](docs/dashboard.png) -->
+
+The dashboard has three tabs:
+- **Today** — paper equity, current target portfolio, model scores, and the
+  account's equity over time.
+- **Backtest** — strategy vs SPY equity curves and the headline metrics.
+- **How it works** — the architecture and design rationale.
+
+Run it locally with:
+
+```bash
+streamlit run dashboard.py
+```
 
 ---
 
