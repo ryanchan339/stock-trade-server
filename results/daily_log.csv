@@ -60,3 +60,4 @@ date,equity,num_positions,invested,market_open,stopped_out
 2026-08-31,113081.81,3,MSFT;JNJ;WMT,0.0,
 2026-09-01,111942.34,3,WMT;AMZN;HD,1.0,
 2026-09-02,112099.19,1,WMT,1.0,
+2026-09-03,112629.67,1,HD,1.0,
