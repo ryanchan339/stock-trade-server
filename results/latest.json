@@ -1,28 +1,29 @@
 {
   "scores": {
-    "MSFT": 0.616,
-    "JNJ": 0.5655,
-    "XOM": 0.5378,
-    "AAPL": 0.5254,
-    "PG": 0.5219,
-    "NVDA": 0.5129,
-    "UNH": 0.5093,
-    "V": 0.5048,
-    "META": 0.5045,
-    "GOOGL": 0.5041,
-    "TSLA": 0.4961,
-    "WMT": 0.495,
-    "JPM": 0.4893,
-    "AMZN": 0.4824,
-    "HD": 0.4676
+    "MSFT": 0.5956,
+    "NVDA": 0.5601,
+    "META": 0.5536,
+    "JNJ": 0.53,
+    "XOM": 0.5299,
+    "AAPL": 0.5248,
+    "V": 0.5209,
+    "HD": 0.5156,
+    "UNH": 0.5149,
+    "WMT": 0.5091,
+    "GOOGL": 0.5052,
+    "TSLA": 0.5044,
+    "PG": 0.4999,
+    "AMZN": 0.4905,
+    "JPM": 0.4812
   },
   "targets": {
     "MSFT": 0.25,
-    "JNJ": 0.25
+    "NVDA": 0.25,
+    "META": 0.25
   },
   "stopped_out": [],
   "dry_run": false,
-  "equity_after": 114701.69,
-  "market_open": false,
-  "date": "2026-10-13"
+  "equity_after": 113144.16,
+  "market_open": true,
+  "date": "2026-10-14"
 }
