@@ -98,3 +98,4 @@ date,equity,num_positions,invested,market_open,stopped_out
 2026-10-22,113921.94,3,META;V;MSFT,1.0,
 2026-10-23,113942.06,0,,1.0,
 2026-10-26,113938.12,2,META;XOM,0.0,
+2026-10-27,113938.12,4,MSFT;TSLA;META;NVDA,1.0,
